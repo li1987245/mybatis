@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.bfd.mapper.UserMapper">
+    <resultMap id="userMap" type="com.bfd.entity.User">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="username" property="userName" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <association property="constant" javaType="com.bfd.entity.Constant">
+            <id property="id" column="constant_id"/>
+            <result property="type" column="constant_type"/>
+            <result property="name" column="constant_name"/>
+        </association>
+        <collection property="weekly" javaType="com.bfd.entity.Weekly">
+            <id property="id" column="weekly_id"/>
+            <result property="date" column="weekly_date"/>
+            <result property="data" column="weekly_data"/>
+        </collection>
+    </resultMap>
+    <select id="queryAllUser" resultMap="userMap">
+        SELECT id,username,password,name,type,constant.id as constant_id,constant.type as constant_type,constant.name as
+        constant_name FROM USER LEFT JOIN constant ON user.`type`=constant.`type` LEFT JOIN weekly ON user.`id`=weekly.`user_id`
+    </select>
+
+    <select id="queryUserByCondition" resultMap="userMap">
+        SELECT id,username,password,name,type,constant.id as constant_id,constant.type as constant_type,constant.name as
+        constant_name FROM `user` LEFT JOIN constant ON user.`type`=constant.`type` LEFT JOIN weekly ON
+        user.`id`=weekly.`user_id`
+        <trim prefix="WHERE" prefixOverrides="AND |OR ">
+            <if test="id != null">
+                ID = #{id}
+            </if>
+            <if test="pid != null">
+                and PARENT_ID = #{pid}
+            </if>
+            <if test="type != null">
+                and TYPE = #{type}
+            </if>
+            <if test="level != null">
+                and LEVEL = #{level}
+            </if>
+        </trim>
+        order by NUM,ID
+    </select>
+
+</mapper>
